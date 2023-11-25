@@ -1,0 +1,409 @@
+#include<iostream>
+#include<fstream>
+#include<string>
+#include<conio.h>
+#include<windows.h>//for color B
+#include<vector>
+#include<time.h>
+#include<stdlib.h>
+#include<iomanip>
+using namespace std;
+
+void registration()
+{
+	system("color 6");
+	string user_id, password, reg_id, reg_password;
+	cout << "Enter the username : ";
+	cin >> user_id;
+	cout << "Enter the password : ";
+	cin >> password;
+
+	ofstream r("registration.txt");
+	r << user_id << " " << password;
+
+	cout << "Your Registration Is Successfull !\n\n\n  Again, ";
+
+
+
+}
+
+void login()
+{
+	system("color 6");
+	string id, pas, user_id, password;
+	cout << "enter your user name and password for logging in \n";
+	cout << "\n\  Enter your id : ";
+	cin >> id;
+	cout << "\n  Enter your password : ";
+	cin >> pas;
+	ifstream input("registration.txt");
+	while (input >> user_id >> password)
+	{
+		if (id == user_id && pas == password)
+			cout << "\nYour Login Is Successful !\n\n";
+	}
+
+}
+
+
+void printmessage(string name, bool printtop = true, bool printbottom = true)//Makes the border and Print the game name in the center of the border
+{
+
+	if (printtop)
+	{
+		cout << "+----------------------------------------+" << endl;  //border
+		cout << "|";
+	}
+	else
+	{
+		cout << "|";
+	}
+	bool front = true;
+	//In order to bring name in middle
+	for (int i = name.length();i < 40;i++)
+	{
+		if (front)
+		{
+			name = " " + name;
+
+		}
+		else
+		{
+			name = name + " ";
+		}
+		front = !front;
+	}
+	cout << name;
+
+	if (printbottom)
+	{
+		cout << "|" << endl;
+		cout << "+----------------------------------------+" << endl;
+
+	}
+	else
+	{
+		cout << "|" << endl;
+	}
+}
+void drawhangman(int guesscount)//Draws the hangman head ,hands,legs,rope.
+{
+	if (guesscount >= 1)
+	{
+		printmessage("|", false, false);
+	}
+	else
+	{
+		printmessage("", false, false);
+	}
+	if (guesscount >= 2)
+	{
+		printmessage("|", false, false);
+	}
+	else
+	{
+		printmessage("", false, false);
+	}
+	if (guesscount >= 3)
+	{
+		printmessage("O", false, false);
+	}
+	else
+	{
+		printmessage("", false, false);
+	}
+	if (guesscount == 4)
+	{
+		printmessage("/  ", false, false);
+	}
+	if (guesscount == 5)
+	{
+		printmessage("/| ", false, false);
+	}
+	if (guesscount >= 6)
+	{
+		printmessage("/|\\", false, false);
+	}
+	else
+	{
+		printmessage("", false, false);
+	}
+	if (guesscount >= 7)
+	{
+		printmessage("|", false, false);
+	}
+	else
+	{
+		printmessage("", false, false);
+	}
+	if (guesscount == 8)
+	{
+		printmessage("/", false, false);
+	}
+	if (guesscount >= 9)
+	{
+		printmessage("/ \\", false, false);
+	}
+	else
+	{
+		printmessage("", false, false);
+	}
+}
+void printletters(string guess, char from, char to)   //Prints the Letter from  A to Z and checks the available letter
+{
+	string s;
+	for (char i = from;i <= to;i++)
+	{
+
+		if (guess.find(i) == string::npos)//checks WHETHER THE guess STRING contains the character or not 
+										  // if no it prints the string as it existed before
+		{
+			s = s + i;
+			s = s + " ";
+		}
+		else
+		{
+			s = s + "  ";//if  already in the guess string then that character gets replaced by a space
+		}
+	}
+	printmessage(s, false, false);
+}
+void print_available_letters(string taken)//takes the letter from the user
+{
+	printmessage("Available Letters", true, true);
+	printletters(taken, 'A', 'M');
+	printletters(taken, 'N', 'Z');
+}
+bool printwordandcheck(string word, string guessed)//Checks whether the given word is correct or not and returns a bool value
+{
+	bool won = true;
+	string s;
+	for (int i = 0;i < word.length();i++)
+	{
+		if (guessed.find(word[i]) == string::npos)//if the letter guessed is wrong then the actual word that contains the letter will still have the _ blank space 
+		{
+			won = false;
+			s = s + "_ ";
+		}
+		else // if the letter guessed is correct it prints the letter of that word
+		{
+			s = s + word[i];
+			s = s + " ";
+		}
+	}
+	printmessage(s, false, true);
+	return won;
+}
+void display_game_name()
+{
+	ifstream name;
+	name.open("name.txt", ios::in);
+	system("Color B");//2 
+	char a;
+	if (!name)
+	{
+		cout << "File could not be opened";
+	}
+	else
+	{
+		while (name >> noskipws >> a)
+		{
+			cout << a;
+		}
+	}
+}
+string Rand_Words(string file)//file is being read and saved in vector then random word is saved in word
+{
+	string word;
+	int Count_Line = 0;
+	vector<string> v;
+	ifstream reader(file);
+	if (reader.is_open())
+	{
+		while (getline(reader, word))
+		{
+
+			v.push_back(word);//COPIES word.
+		}
+
+		int randomline = rand() % v.size();
+		word = v.at(randomline);//at ftn CoPIES RANDOM index 
+		reader.close();
+	}
+	return word;
+}
+
+int No_of_TriesLeft(string word, string guessed)
+{
+	int mistakes = 0;
+	for (int i = 0; i < guessed.size();i++)
+	{
+		if (word.find(guessed[i]) == string::npos)
+		{
+			mistakes++;
+		}
+	}
+	return mistakes;
+}
+
+/*void print_Name_of_members(string name)
+{
+
+cout << endl;
+if (name == "RAYYAN")
+cout << "01-134212-151";
+else if (name == "NIMRA")
+cout << "01-134212-148";
+else
+cout << "01-134212-148";
+
+
+}*/
+void loading(int load_time)
+{
+	system("cls");
+	system("color 0B");
+
+	cout << " \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n ";
+	cout << "\t\t\t\t\t\t\tLOADING : \n\n";
+
+
+
+	char x = 178;
+	cout << " \t\t\t";
+
+	for (int i = 0; i < 69; i++)
+	{
+		cout << x << setw(0);
+		Sleep(load_time);
+	}
+
+	cout << endl;
+	cout << endl;
+	cout << endl;
+
+}
+void gameover()
+{
+	ifstream gameover;
+	gameover.open("gameover1.txt", ios::in);
+
+	char a;
+	if (!gameover)
+	{
+		cout << "File could not be opened";
+	}
+	else
+	{
+		while (gameover >> noskipws >> a)
+		{
+			cout << a;
+		}
+	}
+}
+void victory()
+{
+	ifstream victory;
+	victory.open("victory.txt", ios::in);
+
+	char a;
+	if (!victory)
+	{
+		cout << "File could not be opened";
+	}
+	else
+	{
+		while (victory >> noskipws >> a)
+		{
+			cout << a;
+		}
+	}
+}
+int main()
+{
+	srand(time(0));
+
+	string guesses = "";//letters we enter in game
+	int GameContinuer = 0;
+	char letter;//letter we enter
+	int mistakes = 0, x;
+
+
+	cout << "\n\n\n\n\n\n\n\n\n\n            If you have not registered press 1 for registration\n\n";
+	cout << "\n\n\n\n                 If you have registered press 2 to login\n";
+	cin >> x;
+	system("cls");
+	if (x == 1)
+	{
+		registration();
+		x++;
+	}
+	if (x == 2)
+	{
+		login();
+		x = 3;
+	}
+
+	if (x == 3)
+	{
+		system("cls");
+
+		display_game_name();
+		cout << endl;
+
+		printmessage("Hangman", true, true);
+		printmessage("RAYYAN", false, false);
+		printmessage("NIMRAH", false, false);
+		printmessage("MAHEEN", false, true);//upper border not printed
+
+		drawhangman(9);
+
+		print_available_letters(guesses);
+		printmessage("Guess the word", true, true);
+		printwordandcheck("", guesses);
+
+		cout << "\n\n           PRESS 1 TO CONTINUE\n";
+		cin >> GameContinuer;
+		loading(20);
+
+		if (GameContinuer == 1)
+		{
+			system("cls");
+			string Word_to_Guess = Rand_Words("words.txt");
+
+			bool win = false;
+			do
+			{
+				system("cls");
+				printmessage("Hangman");
+				drawhangman(mistakes);//TRIES is mistakes
+				print_available_letters(guesses);
+				printmessage("Guess the word", true, true);
+				win = printwordandcheck(Word_to_Guess, guesses);
+				if (win)
+					break;//breaks the do loop when the bool value returns true
+
+				cout << "Word -> ";
+				cin >> letter;
+				if (guesses.find(letter) == string::npos)//if letters we have entere is not equal to original word then we add it to no. of characters we have entered
+					guesses += letter;//if letter is not correct we will add this to no of characters
+				mistakes = No_of_TriesLeft(Word_to_Guess, guesses);
+
+			} while (mistakes < 10);
+			if (win)
+			{
+				system("cls");
+				victory();
+			}
+			else
+			{
+				system("cls");
+				system("color C");
+				gameover();
+			}
+		}
+	}
+	_getch();
+	return 0;
+
+}
